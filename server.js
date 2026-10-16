@@ -111,16 +111,33 @@ async function createCheckoutSession(domain) {
   }
 }
 
+// Dynamic domain resolution supporting localhost and serverless deployments (Vercel)
+function getDomain(req) {
+  if (process.env.DOMAIN && !process.env.DOMAIN.includes("localhost")) {
+    return process.env.DOMAIN.replace(/\/$/, "");
+  }
+  if (req) {
+    const proto = req.headers["x-forwarded-proto"] || req.protocol || "https";
+    const host = req.headers["x-forwarded-host"] || req.get("host");
+    if (host) return `${proto}://${host}`;
+  }
+  return process.env.DOMAIN || `http://localhost:${port}`;
+}
+
 // Stripe Hosted Checkout Session creation endpoint (supports both /create-checkout-session and /api/create-checkout-session)
 app.post(["/create-checkout-session", "/api/create-checkout-session"], async (req, res) => {
   if (!checkCredentials(req, res)) return;
 
   try {
-    const domain = process.env.DOMAIN || `http://localhost:${port}`;
+    const domain = getDomain(req);
     const session = await createCheckoutSession(domain);
 
     if (!session.url) {
       throw new Error("Stripe did not return a session.url.");
+    }
+
+    if (req.is("json") || req.headers.accept?.includes("application/json") || req.xhr) {
+      return res.json({ url: session.url });
     }
 
     res.redirect(303, session.url);
@@ -144,11 +161,15 @@ app.get(["/create-checkout-session", "/api/create-checkout-session"], async (req
   if (!checkCredentials(req, res)) return;
 
   try {
-    const domain = process.env.DOMAIN || `http://localhost:${port}`;
+    const domain = getDomain(req);
     const session = await createCheckoutSession(domain);
 
     if (!session.url) {
       throw new Error("Stripe did not return a session.url.");
+    }
+
+    if (req.is("json") || req.headers.accept?.includes("application/json") || req.xhr) {
+      return res.json({ url: session.url });
     }
 
     res.redirect(303, session.url);
@@ -203,6 +224,10 @@ app.post("/api/webhook", express.raw({ type: "application/json" }), (req, res) =
   res.sendStatus(200);
 });
 
-app.listen(port, () => {
-  console.log(`OnlyAgents server running on http://localhost:${port}`);
-});
+if (require.main === module) {
+  app.listen(port, () => {
+    console.log(`OnlyAgents server running on http://localhost:${port}`);
+  });
+}
+
+module.exports = app;

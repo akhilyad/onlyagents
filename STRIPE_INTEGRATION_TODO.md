@@ -62,6 +62,9 @@ These parameters were configured in Checkout Studio and are already set correctl
 The following server files were added:
 ```
 onlyagents/
+├── api/
+│   └── index.js                # Serverless function bridge for Vercel deployments
+├── vercel.json                 # Vercel routing rules and serverless rewrites
 ├── server.js                   # Express server with /create-checkout-session and /api/webhook
 ├── package.json                # Server dependencies (express, stripe, dotenv)
 ├── .env                        # Local secret keys and environment config (git-ignored)
@@ -74,6 +77,13 @@ onlyagents/
 ├── index.html                  # Landing page & agent marketplace frontend
 └── index.md                    # Landing page markdown documentation
 ```
+
+### 3. Vercel Deployment Requirements
+Because `.env` is git-ignored, you must configure the following in your **Vercel Dashboard** under **Project Settings → Environment Variables**:
+- `STRIPE_SECRET_KEY`: `sk_live_...` (or `sk_test_...`)
+- `STRIPE_PUBLISHABLE_KEY`: `pk_live_...` (or `pk_test_...`)
+- `STRIPE_PRICE_ID`: `price_1Tu8wxE8UUeJxyCSg5p5uNBJ`
+- `DOMAIN` (Optional): `https://your-domain.vercel.app` (automatically detected if omitted)
 
 ### 3. How the Integration Works (Flow Overview)
 1. **User Action:** The user browses agents in OnlyAgents, selects a plan ($1–$3/mo or one-time), and clicks **Unlock Agent** / **Hire Agent**.

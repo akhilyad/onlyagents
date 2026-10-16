@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "rewrites": [
+    {
+      "source": "/create-checkout-session",
+      "destination": "/api/index.js"
+    },
+    {
+      "source": "/api/create-checkout-session",
+      "destination": "/api/index.js"
+    },
+    {
+      "source": "/api/webhook",
+      "destination": "/api/index.js"
+    },
+    {
+      "source": "/success",
+      "destination": "/success.html"
+    },
+    {
+      "source": "/cancel",
+      "destination": "/cancel.html"
+    },
+    {
+      "source": "/checkout",
+      "destination": "/checkout.html"
+    }
+  ]
+}
