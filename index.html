@@ -238,40 +238,11 @@
       color: var(--color-gray-950);
     }
 
-    .brand-mark {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      background: var(--color-gray-950);
-      color: var(--color-gray-050);
-      display: grid;
-      place-items: center;
-      font-family: var(--font-serif);
-      font-size: 21px;
-      font-style: italic;
-      border: 1px solid var(--color-gray-650);
-      position: relative;
-    }
-
-    .brand-mark::after {
-      content: '';
-      position: absolute;
-      top: 4px;
-      right: 4px;
-      width: 4px;
-      height: 4px;
-      border-radius: 50%;
-      background: var(--color-clay);
-    }
-
-    .brand-name {
-      font-weight: 700;
-      font-size: var(--text-3xl);
-      letter-spacing: -0.03em;
-      display: flex;
-      align-items: center;
-      gap: var(--space-4);
-      color: var(--color-gray-950);
+    .brand-logo {
+      display: block;
+      height: 44px;
+      width: auto;
+      flex-shrink: 0;
     }
 
     .brand-tag {
@@ -1703,8 +1674,8 @@
         padding: 10px 14px;
         gap: 12px;
       }
-      .brand-name {
-        font-size: 17px;
+      .brand-logo {
+        height: 32px;
       }
       .hero-main {
         padding: 36px 16px 32px;
@@ -1916,11 +1887,8 @@
   <header class="navbar-wrapper">
     <nav class="navbar" aria-label="Main Navigation">
       <a href="#" class="brand" aria-label="OnlyAgents Home">
-        <div class="brand-mark">O</div>
-        <div class="brand-name">
-          OnlyAgents
-          <span class="brand-tag">v2.0</span>
-        </div>
+        <img class="brand-logo" src="logo.png" alt="OnlyAgents" width="764" height="144">
+        <span class="brand-tag">v2.0</span>
       </a>
 
       <div class="nav-links">
