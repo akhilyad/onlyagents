@@ -113,6 +113,15 @@ function buildLineItem(agent, plan) {
   };
 }
 
+// Brand name + OA icon shown top-left on Stripe's checkout page. Stripe fetches the icon
+// from our own site, so it's only set on public https domains (not localhost).
+function brandingSettings(domain) {
+  return {
+    display_name: "OnlyAgents",
+    ...(domain.startsWith("https://") && { icon: { type: "url", url: `${domain}/brand/icon.png` } }),
+  };
+}
+
 // Creates a Stripe Checkout Session with Studio parameters and graceful terms fallback
 async function createCheckoutSession(domain, { agent, plan, email }) {
   const isSubscription = !agent || plan === "monthly";
@@ -129,6 +138,7 @@ async function createCheckoutSession(domain, { agent, plan, email }) {
     submit_type: "auto",
     integration_identifier: "hosted_web_0001",
     origin_context: "web",
+    branding_settings: brandingSettings(domain),
     success_url: `${domain}/success?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${domain}/cancel`,
     line_items: [buildLineItem(agent, plan)],
