@@ -36,10 +36,9 @@ These parameters were configured in Checkout Studio and are already set correctl
 |-----------|-------|-------------|
 | `ui_mode` | `hosted_page` | Uses Stripe's hosted payment page (*Note: For Stripe SDK versions below 21.0.0, use `hosted` if required by the SDK*). |
 | `billing_address_collection` | `auto` | Automatically requests billing address when needed for tax or fraud mitigation. |
-| `phone_number_collection` | `{"enabled": false}` | Disables phone number collection during checkout. |
-| `automatic_tax` | `{"enabled": false}` | Automatic tax calculation disabled. |
-| `allow_promotion_codes` | `false` | Promo code input field disabled in Checkout. |
 | `payment_method_collection` | `always` | Collects payment method details for recurring subscriptions. |
+| `allow_promotion_codes` | `false` | Promo code input field disabled in Checkout. |
+| `consent_collection` | `{"terms_of_service": "required"}` | Requires customers to explicitly accept Terms of Service during checkout. |
 | `submit_type` | `auto` | Uses default submit button copy suited to the checkout mode. |
 | `integration_identifier` | `hosted_web_0001` | Checkout studio integration tag. |
 | `origin_context` | `web` | Web client execution context. |

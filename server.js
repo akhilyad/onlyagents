@@ -24,13 +24,11 @@ app.post("/api/create-checkout-session", async (req, res) => {
       ui_mode: "hosted_page",
       mode: mode,
       billing_address_collection: "auto",
-      phone_number_collection: {
-        enabled: false,
-      },
-      automatic_tax: {
-        enabled: false,
-      },
+      payment_method_collection: "always",
       allow_promotion_codes: false,
+      consent_collection: {
+        terms_of_service: "required",
+      },
       submit_type: "auto",
       integration_identifier: "hosted_web_0001",
       origin_context: "web",
@@ -67,13 +65,11 @@ app.get("/api/create-checkout-session", async (req, res) => {
       ui_mode: "hosted_page",
       mode: mode,
       billing_address_collection: "auto",
-      phone_number_collection: {
-        enabled: false,
-      },
-      automatic_tax: {
-        enabled: false,
-      },
+      payment_method_collection: "always",
       allow_promotion_codes: false,
+      consent_collection: {
+        terms_of_service: "required",
+      },
       submit_type: "auto",
       integration_identifier: "hosted_web_0001",
       origin_context: "web",
