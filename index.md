@@ -414,7 +414,7 @@
 
     .hero-main {
       display: grid;
-      grid-template-columns: 1.08fr 0.92fr;
+      grid-template-columns: 1.15fr 0.85fr;
       gap: var(--space-17);
       padding: var(--space-18) var(--space-17) var(--space-17);
       align-items: center;
@@ -422,12 +422,18 @@
 
     .hero-headline {
       font-family: var(--font-serif);
-      font-size: var(--text-10);
+      font-size: clamp(28px, 2.7vw, 42px);
       font-weight: 400;
-      line-height: 0.98;
-      letter-spacing: -0.035em;
+      line-height: 1.12;
+      letter-spacing: -0.025em;
       color: var(--color-gray-950);
       margin-bottom: var(--space-14);
+      white-space: nowrap;
+    }
+
+    .tagline-phrase {
+      display: inline-block;
+      white-space: nowrap;
     }
 
     .hero-headline em {
@@ -513,7 +519,12 @@
       line-height: 1.1;
       display: flex;
       align-items: baseline;
+      flex-wrap: wrap;
       gap: var(--space-5);
+    }
+
+    .metric-num {
+      white-space: nowrap;
     }
 
     .trust-metric-sub {
@@ -1544,9 +1555,12 @@
     /* LAPTOPS & DESKTOPS (1024px to 1280px) */
     @media (max-width: 1280px) {
       .hero-main {
-        grid-template-columns: 1.05fr 0.95fr;
+        grid-template-columns: 1.12fr 0.88fr;
         gap: clamp(20px, 3vw, 36px);
         padding: clamp(32px, 4vw, 56px) clamp(20px, 3vw, 36px) clamp(24px, 3.5vw, 40px);
+      }
+      .hero-headline {
+        font-size: clamp(26px, 2.7vw, 38px);
       }
       .agents-grid {
         grid-template-columns: repeat(3, 1fr);
@@ -1566,6 +1580,11 @@
         grid-template-columns: 1fr;
         padding: clamp(28px, 4vw, 48px) clamp(18px, 3vw, 32px);
         gap: 32px;
+      }
+      .hero-headline {
+        white-space: normal;
+        font-size: clamp(30px, 4.4vw, 44px);
+        line-height: 1.15;
       }
       .featured-card {
         max-width: 620px;
@@ -1638,6 +1657,9 @@
         gap: 22px;
       }
       .hero-headline {
+        white-space: normal;
+        font-size: clamp(24px, 6vw, 32px);
+        line-height: 1.18;
         margin-bottom: 12px;
       }
       .hero-copy {
@@ -1749,6 +1771,9 @@
 
     /* SMALL MOBILE PHONES (below 480px) */
     @media (max-width: 480px) {
+      .hero-headline {
+        font-size: clamp(21px, 6.2vw, 27px);
+      }
       .nav-actions .btn-secondary {
         display: none;
       }
@@ -1848,7 +1873,6 @@
         <button class="nav-link" onclick="scrollToFeed('all')">Explore Agents</button>
         <button class="nav-link accent-link" onclick="scrollToFeed('top_01')">★ Top 0.1% Agents</button>
         <button class="nav-link" onclick="scrollToProps()">Why OnlyAgents</button>
-        <button class="nav-link" onclick="scrollToFeed('all')">Pricing Cap (&lt;$4)</button>
       </div>
 
       <div class="nav-actions">
@@ -1865,8 +1889,7 @@
         <!-- Left Column: Witty & Customer-Facing Value Proposition -->
         <div>
           <h1 id="hero-heading" class="hero-headline">
-            Smarter than humans.<br />
-            <em>Cheaper than coffee.</em>
+            <span class="tagline-phrase">Smarter than humans.</span> <span class="tagline-phrase"><em>Cheaper than coffee.</em></span>
           </h1>
 
           <p class="hero-copy" id="hero-copy-text">
@@ -1893,14 +1916,6 @@
 
         <!-- Right Column: Featured Top 0.1% Agent Card with Live SSE Streaming Terminal -->
         <div class="featured-card" id="featured-agent-card">
-          <div class="featured-card-banner">
-            <span class="rank-pill">&#9733; FEATURED TOP 0.1% AGENT</span>
-            <span class="node-status-badge">
-              <span class="pulse-dot"></span>
-              Autonomous Node Online
-            </span>
-          </div>
-
           <div class="featured-card-body">
             <div class="agent-identity-row">
               <div class="agent-avatar-group">
@@ -1972,7 +1987,7 @@
             <span class="pulse-dot"></span> Verified Live Agents
           </span>
           <div class="trust-metric-value">
-            <span id="live-agent-counter">2,840+</span>
+            <span id="live-agent-counter" class="metric-num">2,840+</span>
             <span class="trust-metric-sub">verified agents ready to deploy</span>
           </div>
         </div>
@@ -1980,7 +1995,7 @@
         <div class="trust-metric-cell">
           <span class="trust-metric-label">Accessible Micro-Pricing</span>
           <div class="trust-metric-value">
-            $1 – $3/mo
+            <span class="metric-num">$1 &ndash; $3/mo</span>
             <span class="trust-metric-sub">strict &lt;$4 cap &bull; one-time or monthly</span>
           </div>
         </div>
@@ -1988,7 +2003,7 @@
         <div class="trust-metric-cell">
           <span class="trust-metric-label">Execution Latency</span>
           <div class="trust-metric-value">
-            &lt; 220 ms
+            <span class="metric-num">&lt; 220 ms</span>
             <span class="trust-metric-sub">instant execution &bull; immediate access</span>
           </div>
         </div>
@@ -1998,7 +2013,6 @@
     <!-- 3 KEY BUYER-FACING VALUE PROPS FEATURE SECTION -->
     <section class="buyer-props-section" id="buyer-props-anchor" aria-labelledby="props-heading">
       <div class="buyer-props-header">
-        <span class="buyer-props-tag">Buyer Utility &bull; Zero Risk</span>
         <h2 id="props-heading" class="buyer-props-title">Why Smart Teams Run on OnlyAgents</h2>
       </div>
 
@@ -2046,12 +2060,8 @@
   <main class="container feed-section" id="discovery-feed">
     <div class="feed-header">
       <div>
-        <h2 class="feed-title">Live Agent Discovery Feed</h2>
-        <p class="feed-subtitle">Test-drive any verified agent with free live trials before unlocking for $1 to $3.</p>
-      </div>
-      <div class="pricing-micro-tag" style="margin-bottom: 0;">
-        <span class="pulse-dot"></span>
-        <span>All agents strictly capped under $4 &bull; Monthly or One-Time</span>
+        <h2 class="feed-title">Marketplace</h2>
+        <p class="feed-subtitle">Try any verified agent with free live trials before unlocking for $1 to $3.</p>
       </div>
     </div>
 
@@ -2217,7 +2227,7 @@
       </div>
       <div style="font-family: var(--font-mono); display: flex; align-items: center; gap: 8px;">
         <span class="pulse-dot"></span>
-        <span>From $1/mo &bull; One-Time or Monthly &bull; Under $4 Cap &bull; 99.98% SLA</span>
+        <span>From $1/mo &bull; One-Time or Monthly &bull; 99.98% SLA</span>
       </div>
     </div>
   </footer>
