@@ -62,10 +62,38 @@ app.post(["/create-checkout-session", "/api/create-checkout-session"], async (re
 
     const session = await stripe.checkout.sessions.create(sessionParams);
 
+    if (!session.url) {
+      throw new Error("Stripe did not return a session.url. Ensure ui_mode is 'hosted_page' or 'hosted'.");
+    }
+
     res.redirect(303, session.url);
   } catch (error) {
     console.error("Error creating Checkout Session:", error);
-    res.status(500).json({ error: error.message });
+    if (req.headers.accept?.includes("application/json")) {
+      return res.status(500).json({
+        error: error.message,
+        hint: error.type === "StripeAuthenticationError" ? "Please set a valid STRIPE_SECRET_KEY in your .env file." : undefined
+      });
+    }
+    res.status(500).send(`
+      <div style="font-family: system-ui, -apple-system, sans-serif; max-width: 580px; margin: 40px auto; padding: 28px; border: 1px solid #E8E6DC; border-radius: 16px; background: #FAF9F5; color: #141413;">
+        <h2 style="color: #BF4D43; margin-top: 0; font-size: 20px;">Stripe API Error: ${error.type || "Checkout Error"}</h2>
+        <p style="color: #5E5D59; line-height: 1.6;">${error.message}</p>
+        ${
+          error.type === "StripeAuthenticationError" || !process.env.STRIPE_SECRET_KEY || process.env.STRIPE_SECRET_KEY.includes("...")
+            ? `<div style="background: #FFFFFF; border: 1px solid #E8E6DC; border-radius: 10px; padding: 16px; margin: 20px 0;">
+                <strong style="color: #141413;">Next Step: Add your Stripe API Keys</strong>
+                <ol style="margin: 10px 0 0 20px; line-height: 1.8; color: #5E5D59;">
+                  <li>Open your <code>.env</code> file in the project root.</li>
+                  <li>Replace <code>sk_test_...</code> with your secret key from <a href="https://dashboard.stripe.com/test/apikeys" target="_blank" style="color: #D97757;">Stripe Dashboard</a>.</li>
+                  <li>Replace <code>price_...</code> with an active Price ID from <a href="https://dashboard.stripe.com/test/products" target="_blank" style="color: #D97757;">Stripe Products</a>.</li>
+                </ol>
+              </div>`
+            : ""
+        }
+        <p style="margin-bottom: 0;"><a href="/checkout" style="color: #D97757; font-weight: 600; text-decoration: none;">&larr; Return to Checkout</a></p>
+      </div>
+    `);
   }
 });
 
@@ -103,10 +131,38 @@ app.get(["/create-checkout-session", "/api/create-checkout-session"], async (req
 
     const session = await stripe.checkout.sessions.create(sessionParams);
 
+    if (!session.url) {
+      throw new Error("Stripe did not return a session.url. Ensure ui_mode is 'hosted_page' or 'hosted'.");
+    }
+
     res.redirect(303, session.url);
   } catch (error) {
     console.error("Error creating Checkout Session:", error);
-    res.status(500).json({ error: error.message });
+    if (req.headers.accept?.includes("application/json")) {
+      return res.status(500).json({
+        error: error.message,
+        hint: error.type === "StripeAuthenticationError" ? "Please set a valid STRIPE_SECRET_KEY in your .env file." : undefined
+      });
+    }
+    res.status(500).send(`
+      <div style="font-family: system-ui, -apple-system, sans-serif; max-width: 580px; margin: 40px auto; padding: 28px; border: 1px solid #E8E6DC; border-radius: 16px; background: #FAF9F5; color: #141413;">
+        <h2 style="color: #BF4D43; margin-top: 0; font-size: 20px;">Stripe API Error: ${error.type || "Checkout Error"}</h2>
+        <p style="color: #5E5D59; line-height: 1.6;">${error.message}</p>
+        ${
+          error.type === "StripeAuthenticationError" || !process.env.STRIPE_SECRET_KEY || process.env.STRIPE_SECRET_KEY.includes("...")
+            ? `<div style="background: #FFFFFF; border: 1px solid #E8E6DC; border-radius: 10px; padding: 16px; margin: 20px 0;">
+                <strong style="color: #141413;">Next Step: Add your Stripe API Keys</strong>
+                <ol style="margin: 10px 0 0 20px; line-height: 1.8; color: #5E5D59;">
+                  <li>Open your <code>.env</code> file in the project root.</li>
+                  <li>Replace <code>sk_test_...</code> with your secret key from <a href="https://dashboard.stripe.com/test/apikeys" target="_blank" style="color: #D97757;">Stripe Dashboard</a>.</li>
+                  <li>Replace <code>price_...</code> with an active Price ID from <a href="https://dashboard.stripe.com/test/products" target="_blank" style="color: #D97757;">Stripe Products</a>.</li>
+                </ol>
+              </div>`
+            : ""
+        }
+        <p style="margin-bottom: 0;"><a href="/checkout" style="color: #D97757; font-weight: 600; text-decoration: none;">&larr; Return to Checkout</a></p>
+      </div>
+    `);
   }
 });
 
