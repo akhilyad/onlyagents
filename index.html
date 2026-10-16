@@ -134,59 +134,8 @@
     }
 
     /* ==========================================================================
-       2. TOP TELEMETRY ANNOUNCEMENT BAR & NAVIGATION
+       2. NAVIGATION
        ========================================================================== */
-    .sleek-topbar {
-      background-color: var(--color-gray-950);
-      color: var(--color-gray-050);
-      font-size: var(--text-base);
-      padding: var(--space-5) var(--space-15);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      position: relative;
-      z-index: 50;
-    }
-
-    .sleek-topbar-left {
-      display: flex;
-      align-items: center;
-      gap: var(--space-7);
-    }
-
-    .sleek-topbar-pill {
-      background: var(--color-clay);
-      color: var(--color-white);
-      font-family: var(--font-mono);
-      font-size: var(--text-xs);
-      font-weight: 600;
-      padding: var(--space-1) var(--space-5);
-      border-radius: 999px;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      box-shadow: 0 0 10px rgba(217, 119, 87, 0.4);
-    }
-
-    .sleek-topbar-center {
-      font-size: var(--text-base);
-      color: var(--color-gray-250);
-    }
-
-    .sleek-topbar-center strong {
-      color: var(--color-white);
-      font-weight: 600;
-    }
-
-    .sleek-topbar-live {
-      display: inline-flex;
-      align-items: center;
-      gap: var(--space-4);
-      font-family: var(--font-mono);
-      font-size: var(--text-sm);
-      color: var(--color-cactus);
-    }
-
     .pulse-dot {
       width: 7px;
       height: 7px;
@@ -240,20 +189,9 @@
 
     .brand-logo {
       display: block;
-      height: 44px;
+      height: 18px;
       width: auto;
       flex-shrink: 0;
-    }
-
-    .brand-tag {
-      font-family: var(--font-mono);
-      font-size: var(--text-xs);
-      color: var(--color-gray-650);
-      background: var(--color-gray-150);
-      border: 1px solid var(--color-gray-200);
-      padding: 1px 6px;
-      border-radius: 4px;
-      font-weight: 500;
     }
 
     .nav-links {
@@ -1650,32 +1588,12 @@
 
     /* PHABLETS & LARGE MOBILE (480px to 720px) */
     @media (max-width: 720px) {
-      .sleek-topbar {
-        flex-direction: column;
-        gap: 4px;
-        text-align: center;
-        padding: 6px 12px;
-      }
-      .sleek-topbar-left {
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 6px;
-        font-size: 11px;
-      }
-      .sleek-topbar-center {
-        font-size: 11px;
-        text-align: center;
-      }
-      .sleek-topbar-live {
-        font-size: 10px;
-        justify-content: center;
-      }
       .navbar {
         padding: 10px 14px;
         gap: 12px;
       }
       .brand-logo {
-        height: 32px;
+        height: 15px;
       }
       .hero-main {
         padding: 36px 16px 32px;
@@ -1869,26 +1787,11 @@
 </head>
 <body>
 
-  <!-- SLEEK LIVE TELEMETRY ANNOUNCEMENT BAR (100% BUYER-FACING) -->
-  <aside class="sleek-topbar" aria-label="Live System Telemetry">
-    <div class="sleek-topbar-left">
-      <span class="sleek-topbar-pill">MICRO-COMPUTE</span>
-      <span class="sleek-topbar-center">
-        Pocket-friendly autonomous AI agents from <strong>$1 to $3/mo</strong> &bull; One-Time or Monthly &bull; <strong>Strict &lt;$4 Cap</strong>.
-      </span>
-    </div>
-    <div class="sleek-topbar-live">
-      <span class="pulse-dot"></span>
-      <span>Autonomous Node Mesh · 99.98% SLA · All systems operational</span>
-    </div>
-  </aside>
-
   <!-- STICKY MINIMALIST NAVIGATION (BUYER-FACING) -->
   <header class="navbar-wrapper">
     <nav class="navbar" aria-label="Main Navigation">
       <a href="#" class="brand" aria-label="OnlyAgents Home">
-        <img class="brand-logo" src="logo.png" alt="OnlyAgents" width="764" height="144">
-        <span class="brand-tag">v2.0</span>
+        <img class="brand-logo" src="logo.png" alt="OnlyAgents" width="773" height="60">
       </a>
 
       <div class="nav-links">
