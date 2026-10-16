@@ -1,0 +1,182 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap');
+
+:root {
+  --bg-primary: #FAF9F5;
+  --surface-card: #FFFFFF;
+  --border-subtle: #E8E6DC;
+  --border-strong: #D1CFC5;
+  --text-primary: #141413;
+  --text-secondary: #5E5D59;
+  --text-muted: #87867F;
+  --accent-clay: #D97757;
+  --accent-clay-hover: #C46849;
+  --accent-success: #2E7D32;
+  --accent-success-bg: #E8F5E9;
+  --accent-success-border: #C8E6C9;
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--bg-primary);
+  background-image: 
+    radial-gradient(at 15% 15%, rgba(217, 119, 87, 0.05) 0px, transparent 50%),
+    radial-gradient(at 85% 85%, rgba(98, 153, 135, 0.06) 0px, transparent 50%);
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+  padding: 24px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+section {
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 20px;
+  box-shadow: 
+    0 1px 2px rgba(20, 20, 19, 0.02),
+    0 8px 24px -4px rgba(20, 20, 19, 0.06),
+    0 24px 48px -12px rgba(20, 20, 19, 0.08);
+  padding: 44px 36px;
+  width: 100%;
+  max-width: 460px;
+  text-align: center;
+  position: relative;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+}
+
+/* Success page dynamic checkmark icon */
+section:not(:has(.product))::before {
+  content: "✓";
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  background: var(--accent-success-bg);
+  border: 1px solid var(--accent-success-border);
+  color: var(--accent-success);
+  font-size: 30px;
+  font-weight: 700;
+  border-radius: 50%;
+  margin-bottom: 22px;
+  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.12);
+}
+
+/* Product card styling */
+.product {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  text-align: left;
+  padding: 16px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  margin-bottom: 28px;
+}
+
+.product img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+.product .description {
+  flex: 1;
+}
+
+.product .description h3 {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+  letter-spacing: -0.01em;
+}
+
+.product .description h5 {
+  font-size: 15px;
+  font-weight: 600;
+  font-family: var(--font-mono);
+  color: var(--accent-clay);
+}
+
+/* Checkout Button */
+#checkout-button {
+  width: 100%;
+  padding: 14px 24px;
+  background: var(--accent-clay);
+  color: #FFFFFF;
+  border: none;
+  border-radius: 12px;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(217, 119, 87, 0.35);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+#checkout-button:hover {
+  background: var(--accent-clay-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(217, 119, 87, 0.45);
+}
+
+#checkout-button:active {
+  transform: translateY(0);
+}
+
+/* Paragraph copy */
+p {
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* Links */
+a {
+  color: var(--accent-clay);
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 1.5px solid rgba(217, 119, 87, 0.3);
+  padding-bottom: 1px;
+  transition: all 0.15s ease;
+}
+
+a:hover {
+  color: var(--accent-clay-hover);
+  border-bottom-color: var(--accent-clay-hover);
+}
+
+@media (max-width: 480px) {
+  section {
+    padding: 32px 24px;
+    border-radius: 16px;
+  }
+
+  .product {
+    flex-direction: column;
+    text-align: center;
+    gap: 14px;
+  }
+}

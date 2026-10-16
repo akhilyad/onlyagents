@@ -2,6 +2,7 @@
 // Find your keys at https://dashboard.stripe.com/apikeys.
 require("dotenv").config();
 const express = require("express");
+const path = require("path");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 const app = express();
@@ -13,6 +14,19 @@ app.use(express.static(__dirname));
 // Parse URL-encoded and JSON bodies
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
+// Routes for Stripe Checkout flow pages
+app.get(["/success", "/success.html"], (req, res) => {
+  res.sendFile(path.join(__dirname, "success.html"));
+});
+
+app.get(["/cancel", "/cancel.html"], (req, res) => {
+  res.sendFile(path.join(__dirname, "cancel.html"));
+});
+
+app.get(["/checkout", "/checkout.html"], (req, res) => {
+  res.sendFile(path.join(__dirname, "checkout.html"));
+});
 
 // Stripe Hosted Checkout Session creation endpoint (supports both /create-checkout-session and /api/create-checkout-session)
 app.post(["/create-checkout-session", "/api/create-checkout-session"], async (req, res) => {

@@ -62,11 +62,15 @@ These parameters were configured in Checkout Studio and are already set correctl
 The following server files were added:
 ```
 onlyagents/
-├── server.js                   # Express server with /api/create-checkout-session and /api/webhook
+├── server.js                   # Express server with /create-checkout-session and /api/webhook
 ├── package.json                # Server dependencies (express, stripe, dotenv)
 ├── .env                        # Local secret keys and environment config (git-ignored)
 ├── .env.example                # Template for environment variables
 ├── STRIPE_INTEGRATION_TODO.md  # Single source of truth for Stripe setup
+├── success.html                # Post-payment order confirmation page
+├── cancel.html                 # Post-checkout cancellation return page
+├── checkout.html               # Standalone product checkout page
+├── style.css                   # Styles for checkout and confirmation cards
 ├── index.html                  # Landing page & agent marketplace frontend
 └── index.md                    # Landing page markdown documentation
 ```
