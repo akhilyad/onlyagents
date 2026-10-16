@@ -187,9 +187,10 @@
       color: var(--color-gray-950);
     }
 
+    /* Wordmark is all caps: tie its height to the nav buttons' font size so they scale together. */
     .brand-logo {
       display: block;
-      height: 18px;
+      height: var(--text-base);
       width: auto;
       flex-shrink: 0;
     }
@@ -1591,9 +1592,6 @@
       .navbar {
         padding: 10px 14px;
         gap: 12px;
-      }
-      .brand-logo {
-        height: 15px;
       }
       .hero-main {
         padding: 36px 16px 32px;
