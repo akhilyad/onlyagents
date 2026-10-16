@@ -3,7 +3,10 @@
 require("dotenv").config();
 const express = require("express");
 const path = require("path");
-const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+const stripeSecretKey = process.env.STRIPE_SECRET_KEY && process.env.STRIPE_SECRET_KEY.trim() !== ""
+  ? process.env.STRIPE_SECRET_KEY.trim()
+  : "sk_test_placeholder";
+const stripe = require("stripe")(stripeSecretKey);
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -28,8 +31,48 @@ app.get(["/checkout", "/checkout.html"], (req, res) => {
   res.sendFile(path.join(__dirname, "checkout.html"));
 });
 
+// Helper to check credentials and render clear guidance
+function checkCredentials(req, res) {
+  const key = process.env.STRIPE_SECRET_KEY ? process.env.STRIPE_SECRET_KEY.trim() : "";
+  if (!key || key === "" || key.includes("...")) {
+    const isBlank = !key || key === "";
+    const msg = isBlank
+      ? "STRIPE_SECRET_KEY is empty in your .env file."
+      : "STRIPE_SECRET_KEY in your .env file is still set to placeholder 'sk_test_...'.";
+
+    if (req.headers.accept?.includes("application/json")) {
+      res.status(500).json({
+        error: msg,
+        hint: "Add your secret key (sk_test_... or sk_live_...) to the .env file."
+      });
+      return false;
+    }
+
+    res.status(500).send(`
+      <div style="font-family: system-ui, -apple-system, sans-serif; max-width: 580px; margin: 40px auto; padding: 28px; border: 1px solid #E8E6DC; border-radius: 16px; background: #FAF9F5; color: #141413;">
+        <h2 style="color: #BF4D43; margin-top: 0; font-size: 20px;">Stripe Secret Key Required</h2>
+        <p style="color: #5E5D59; line-height: 1.6;">${msg}</p>
+        <div style="background: #FFFFFF; border: 1px solid #E8E6DC; border-radius: 10px; padding: 16px; margin: 20px 0;">
+          <strong style="color: #141413;">How to resolve:</strong>
+          <ol style="margin: 10px 0 0 20px; line-height: 1.8; color: #5E5D59;">
+            <li>Open your <code>.env</code> file in the project root.</li>
+            <li>You configured <code>STRIPE_PUBLISHABLE_KEY</code>, but <code>STRIPE_SECRET_KEY=</code> is blank.</li>
+            <li>Server-side session creation requires a <strong>Secret Key</strong> (starts with <code>sk_test_</code> or <code>sk_live_</code>).</li>
+            <li>Add <code>STRIPE_SECRET_KEY=sk_...</code> and set <code>STRIPE_PRICE_ID=price_...</code>.</li>
+          </ol>
+        </div>
+        <p style="margin-bottom: 0;"><a href="/checkout" style="color: #D97757; font-weight: 600; text-decoration: none;">&larr; Return to Checkout</a></p>
+      </div>
+    `);
+    return false;
+  }
+  return true;
+}
+
 // Stripe Hosted Checkout Session creation endpoint (supports both /create-checkout-session and /api/create-checkout-session)
 app.post(["/create-checkout-session", "/api/create-checkout-session"], async (req, res) => {
+  if (!checkCredentials(req, res)) return;
+
   try {
     const domain = process.env.DOMAIN || `http://localhost:${port}`;
     const mode = "subscription"; // "subscription" for recurring agent access or "payment" for one-time unlock
@@ -99,6 +142,8 @@ app.post(["/create-checkout-session", "/api/create-checkout-session"], async (re
 
 // GET fallback support for direct links and browser triggers
 app.get(["/create-checkout-session", "/api/create-checkout-session"], async (req, res) => {
+  if (!checkCredentials(req, res)) return;
+
   try {
     const domain = process.env.DOMAIN || `http://localhost:${port}`;
     const mode = "subscription";
