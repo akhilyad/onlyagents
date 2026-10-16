@@ -6,7 +6,9 @@ const path = require("path");
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY && process.env.STRIPE_SECRET_KEY.trim() !== ""
   ? process.env.STRIPE_SECRET_KEY.trim()
   : "sk_test_placeholder";
-const stripe = require("stripe")(stripeSecretKey);
+const stripe = require("stripe")(stripeSecretKey, {
+  apiVersion: "2026-03-25.dahlia",
+});
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -69,72 +71,69 @@ function checkCredentials(req, res) {
   return true;
 }
 
+// Creates a Stripe Checkout Session with Studio parameters and graceful terms fallback
+async function createCheckoutSession(domain) {
+  const mode = "subscription"; // "subscription" for recurring agent access or "payment" for one-time unlock
+
+  const sessionParams = {
+    ui_mode: "hosted_page",
+    mode: mode,
+    billing_address_collection: "auto",
+    payment_method_collection: "always",
+    allow_promotion_codes: false,
+    consent_collection: {
+      terms_of_service: "required",
+    },
+    submit_type: "auto",
+    integration_identifier: "hosted_web_0001",
+    origin_context: "web",
+    success_url: `${domain}/success?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${domain}`,
+    line_items: [
+      {
+        price: process.env.STRIPE_PRICE_ID,
+        quantity: 1,
+      },
+    ],
+  };
+
+  try {
+    return await stripe.checkout.sessions.create(sessionParams);
+  } catch (err) {
+    // If Stripe Dashboard public business details don't have a Terms of Service URL set yet:
+    if (err.message && err.message.includes("terms of service")) {
+      console.warn("[Stripe Notice] Terms of service URL is not yet configured in Stripe Dashboard (https://dashboard.stripe.com/settings/public). Creating session without consent_collection.");
+      const fallbackParams = { ...sessionParams };
+      delete fallbackParams.consent_collection;
+      return await stripe.checkout.sessions.create(fallbackParams);
+    }
+    throw err;
+  }
+}
+
 // Stripe Hosted Checkout Session creation endpoint (supports both /create-checkout-session and /api/create-checkout-session)
 app.post(["/create-checkout-session", "/api/create-checkout-session"], async (req, res) => {
   if (!checkCredentials(req, res)) return;
 
   try {
     const domain = process.env.DOMAIN || `http://localhost:${port}`;
-    const mode = "subscription"; // "subscription" for recurring agent access or "payment" for one-time unlock
-
-    const sessionParams = {
-      ui_mode: "hosted_page",
-      mode: mode,
-      billing_address_collection: "auto",
-      payment_method_collection: "always",
-      allow_promotion_codes: false,
-      consent_collection: {
-        terms_of_service: "required",
-      },
-      submit_type: "auto",
-      integration_identifier: "hosted_web_0001",
-      origin_context: "web",
-      success_url: `${domain}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${domain}`,
-      line_items: [
-        {
-          price: process.env.STRIPE_PRICE_ID || "price_...",
-          quantity: 1,
-        },
-      ],
-    };
-
-    if (mode === "subscription") {
-      sessionParams.payment_method_collection = "always";
-    }
-
-    const session = await stripe.checkout.sessions.create(sessionParams);
+    const session = await createCheckoutSession(domain);
 
     if (!session.url) {
-      throw new Error("Stripe did not return a session.url. Ensure ui_mode is 'hosted_page' or 'hosted'.");
+      throw new Error("Stripe did not return a session.url.");
     }
 
     res.redirect(303, session.url);
   } catch (error) {
     console.error("Error creating Checkout Session:", error);
     if (req.headers.accept?.includes("application/json")) {
-      return res.status(500).json({
-        error: error.message,
-        hint: error.type === "StripeAuthenticationError" ? "Please set a valid STRIPE_SECRET_KEY in your .env file." : undefined
-      });
+      return res.status(500).json({ error: error.message });
     }
     res.status(500).send(`
       <div style="font-family: system-ui, -apple-system, sans-serif; max-width: 580px; margin: 40px auto; padding: 28px; border: 1px solid #E8E6DC; border-radius: 16px; background: #FAF9F5; color: #141413;">
         <h2 style="color: #BF4D43; margin-top: 0; font-size: 20px;">Stripe API Error: ${error.type || "Checkout Error"}</h2>
         <p style="color: #5E5D59; line-height: 1.6;">${error.message}</p>
-        ${
-          error.type === "StripeAuthenticationError" || !process.env.STRIPE_SECRET_KEY || process.env.STRIPE_SECRET_KEY.includes("...")
-            ? `<div style="background: #FFFFFF; border: 1px solid #E8E6DC; border-radius: 10px; padding: 16px; margin: 20px 0;">
-                <strong style="color: #141413;">Next Step: Add your Stripe API Keys</strong>
-                <ol style="margin: 10px 0 0 20px; line-height: 1.8; color: #5E5D59;">
-                  <li>Open your <code>.env</code> file in the project root.</li>
-                  <li>Replace <code>sk_test_...</code> with your secret key from <a href="https://dashboard.stripe.com/test/apikeys" target="_blank" style="color: #D97757;">Stripe Dashboard</a>.</li>
-                  <li>Replace <code>price_...</code> with an active Price ID from <a href="https://dashboard.stripe.com/test/products" target="_blank" style="color: #D97757;">Stripe Products</a>.</li>
-                </ol>
-              </div>`
-            : ""
-        }
-        <p style="margin-bottom: 0;"><a href="/checkout" style="color: #D97757; font-weight: 600; text-decoration: none;">&larr; Return to Checkout</a></p>
+        <p style="margin-top: 20px; margin-bottom: 0;"><a href="/checkout" style="color: #D97757; font-weight: 600; text-decoration: none;">&larr; Return to Checkout</a></p>
       </div>
     `);
   }
@@ -146,66 +145,23 @@ app.get(["/create-checkout-session", "/api/create-checkout-session"], async (req
 
   try {
     const domain = process.env.DOMAIN || `http://localhost:${port}`;
-    const mode = "subscription";
-
-    const sessionParams = {
-      ui_mode: "hosted_page",
-      mode: mode,
-      billing_address_collection: "auto",
-      payment_method_collection: "always",
-      allow_promotion_codes: false,
-      consent_collection: {
-        terms_of_service: "required",
-      },
-      submit_type: "auto",
-      integration_identifier: "hosted_web_0001",
-      origin_context: "web",
-      success_url: `${domain}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${domain}`,
-      line_items: [
-        {
-          price: process.env.STRIPE_PRICE_ID || "price_...",
-          quantity: 1,
-        },
-      ],
-    };
-
-    if (mode === "subscription") {
-      sessionParams.payment_method_collection = "always";
-    }
-
-    const session = await stripe.checkout.sessions.create(sessionParams);
+    const session = await createCheckoutSession(domain);
 
     if (!session.url) {
-      throw new Error("Stripe did not return a session.url. Ensure ui_mode is 'hosted_page' or 'hosted'.");
+      throw new Error("Stripe did not return a session.url.");
     }
 
     res.redirect(303, session.url);
   } catch (error) {
     console.error("Error creating Checkout Session:", error);
     if (req.headers.accept?.includes("application/json")) {
-      return res.status(500).json({
-        error: error.message,
-        hint: error.type === "StripeAuthenticationError" ? "Please set a valid STRIPE_SECRET_KEY in your .env file." : undefined
-      });
+      return res.status(500).json({ error: error.message });
     }
     res.status(500).send(`
       <div style="font-family: system-ui, -apple-system, sans-serif; max-width: 580px; margin: 40px auto; padding: 28px; border: 1px solid #E8E6DC; border-radius: 16px; background: #FAF9F5; color: #141413;">
         <h2 style="color: #BF4D43; margin-top: 0; font-size: 20px;">Stripe API Error: ${error.type || "Checkout Error"}</h2>
         <p style="color: #5E5D59; line-height: 1.6;">${error.message}</p>
-        ${
-          error.type === "StripeAuthenticationError" || !process.env.STRIPE_SECRET_KEY || process.env.STRIPE_SECRET_KEY.includes("...")
-            ? `<div style="background: #FFFFFF; border: 1px solid #E8E6DC; border-radius: 10px; padding: 16px; margin: 20px 0;">
-                <strong style="color: #141413;">Next Step: Add your Stripe API Keys</strong>
-                <ol style="margin: 10px 0 0 20px; line-height: 1.8; color: #5E5D59;">
-                  <li>Open your <code>.env</code> file in the project root.</li>
-                  <li>Replace <code>sk_test_...</code> with your secret key from <a href="https://dashboard.stripe.com/test/apikeys" target="_blank" style="color: #D97757;">Stripe Dashboard</a>.</li>
-                  <li>Replace <code>price_...</code> with an active Price ID from <a href="https://dashboard.stripe.com/test/products" target="_blank" style="color: #D97757;">Stripe Products</a>.</li>
-                </ol>
-              </div>`
-            : ""
-        }
-        <p style="margin-bottom: 0;"><a href="/checkout" style="color: #D97757; font-weight: 600; text-decoration: none;">&larr; Return to Checkout</a></p>
+        <p style="margin-top: 20px; margin-bottom: 0;"><a href="/checkout" style="color: #D97757; font-weight: 600; text-decoration: none;">&larr; Return to Checkout</a></p>
       </div>
     `);
   }
