@@ -1,15 +1,80 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Thanks for your order!</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Thanks for your order · OnlyAgents</title>
+  <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
-  <section>
-    <p>
-      We appreciate your business! If you have any questions, please email
-      <a href="mailto:orders@example.com">orders@example.com</a>.
-    </p>
+  <a class="brand" href="/"><span class="brand-mark">O</span> OnlyAgents</a>
+
+  <section class="status-card">
+    <div class="status-icon status-icon--success" id="status-icon" aria-hidden="true">&#10003;</div>
+    <h1 id="status-title">Thanks for your order!</h1>
+    <p id="status-message">Confirming your payment with Stripe…</p>
+
+    <dl class="order-summary" id="order-summary" hidden>
+      <div><dt>Item</dt><dd id="summary-item"></dd></div>
+      <div><dt>Plan</dt><dd id="summary-plan"></dd></div>
+      <div><dt>Total</dt><dd id="summary-total"></dd></div>
+      <div id="summary-email-row"><dt>Email</dt><dd id="summary-email"></dd></div>
+    </dl>
+
+    <div class="status-actions">
+      <a class="btn btn-primary" href="/">Back to marketplace</a>
+    </div>
   </section>
+
+  <script>
+    const PLAN_LABELS = { monthly: "Monthly plan", onetime: "Lifetime access", membership: "Membership" };
+    const $ = (id) => document.getElementById(id);
+
+    function setStatus(icon, title, message) {
+      $("status-icon").className = `status-icon ${icon ? `status-icon--${icon}` : ""}`;
+      $("status-icon").textContent = icon === "success" ? "✓" : icon === "error" ? "!" : "…";
+      $("status-title").textContent = title;
+      $("status-message").textContent = message;
+    }
+
+    function formatTotal({ amountTotal, currency, mode }) {
+      if (amountTotal == null || !currency) return "—";
+      const price = new Intl.NumberFormat(undefined, { style: "currency", currency }).format(amountTotal / 100);
+      return mode === "subscription" ? `${price} / month` : price;
+    }
+
+    const sessionId = new URLSearchParams(location.search).get("session_id");
+
+    if (!sessionId) {
+      setStatus("", "Order details unavailable", "This link doesn't include an order reference. If you completed a payment, your confirmation email has the details.");
+    } else {
+      fetch(`/api/checkout-session?session_id=${encodeURIComponent(sessionId)}`, { headers: { Accept: "application/json" } })
+        .then(async (res) => {
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) throw new Error(data.error || "Couldn't load your order.");
+          return data;
+        })
+        .then((order) => {
+          if (order.status === "complete" && order.paymentStatus !== "unpaid") {
+            setStatus("success", "Thanks for your order!", "Your payment is confirmed. Here's a summary of your order.");
+          } else if (order.status === "complete") {
+            setStatus("", "Payment processing", "Your order is placed. We'll confirm by email as soon as the payment clears.");
+          } else {
+            setStatus("", "Payment not completed", "This checkout hasn't been paid yet. You haven't been charged.");
+            return;
+          }
+
+          $("summary-item").textContent = order.agentName || "OnlyAgents";
+          $("summary-plan").textContent = PLAN_LABELS[order.plan] || (order.mode === "subscription" ? "Subscription" : "One-time");
+          $("summary-total").textContent = formatTotal(order);
+          $("summary-email").textContent = order.email || "";
+          $("summary-email-row").hidden = !order.email;
+          $("order-summary").hidden = false;
+        })
+        .catch((err) => {
+          setStatus("error", "We couldn't load your order", `${err.message} If you completed a payment, your confirmation email has the details.`);
+        });
+    }
+  </script>
 </body>
 </html>

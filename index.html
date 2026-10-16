@@ -1424,6 +1424,11 @@
     }
 
     .plan-card {
+      display: block;
+      width: 100%;
+      text-align: left;
+      font: inherit;
+      color: inherit;
       border: 2px solid var(--color-gray-200);
       background: var(--color-gray-050);
       border-radius: var(--space-6);
@@ -1431,6 +1436,15 @@
       cursor: pointer;
       transition: var(--transition-fast);
       position: relative;
+    }
+
+    .plan-card > span {
+      display: block;
+    }
+
+    .plan-card:focus-visible {
+      outline: 2px solid var(--color-clay);
+      outline-offset: 2px;
     }
 
     .plan-card:hover {
@@ -1490,6 +1504,39 @@
 
     .entitlement-list li strong {
       color: var(--color-gray-950);
+    }
+
+    body.modal-open {
+      overflow: hidden;
+    }
+
+    .form-label-hint {
+      font-size: var(--text-xs);
+      font-weight: 500;
+      color: var(--color-gray-550);
+    }
+
+    .checkout-error {
+      background: #FBEDEB;
+      border: 1px solid #F0C9C4;
+      color: var(--color-error);
+      border-radius: var(--space-5);
+      padding: var(--space-7) var(--space-9);
+      font-size: var(--text-base);
+      line-height: 1.5;
+      margin-bottom: var(--space-9);
+    }
+
+    .checkout-secure-note {
+      margin-top: var(--space-7);
+      text-align: center;
+      font-size: var(--text-sm);
+      color: var(--color-gray-550);
+    }
+
+    #checkout-button:disabled {
+      opacity: 0.75;
+      cursor: progress;
     }
 
     /* Footer */
@@ -2076,17 +2123,17 @@
       </div>
       <div class="modal-body" id="checkout-modal-body">
         <!-- Dual Purchase Option Tabs -->
-        <div class="plan-selector-grid">
-          <div class="plan-card active" id="plan-card-sub" onclick="selectPurchasePlan('monthly')">
+        <div class="plan-selector-grid" role="radiogroup" aria-label="Purchase option">
+          <button type="button" class="plan-card active" id="plan-card-sub" role="radio" aria-checked="true" onclick="selectPurchasePlan('monthly')">
             <span class="plan-card-tag">Option 1: Monthly</span>
-            <div class="plan-card-price" id="plan-monthly-price">$2.50/mo</div>
-            <div class="plan-card-desc">Flexible subscription &bull; Cancel anytime with 1 click</div>
-          </div>
-          <div class="plan-card" id="plan-card-once" onclick="selectPurchasePlan('onetime')">
+            <span class="plan-card-price" id="plan-monthly-price">$2.50/mo</span>
+            <span class="plan-card-desc">Flexible subscription &bull; Cancel anytime with 1 click</span>
+          </button>
+          <button type="button" class="plan-card" id="plan-card-once" role="radio" aria-checked="false" onclick="selectPurchasePlan('onetime')">
             <span class="plan-card-tag">Option 2: Lifetime</span>
-            <div class="plan-card-price" id="plan-onetime-price">$3.50 once</div>
-            <div class="plan-card-desc">One-time purchase &bull; Unlimited runs forever</div>
-          </div>
+            <span class="plan-card-price" id="plan-onetime-price">$3.50 once</span>
+            <span class="plan-card-desc">One-time purchase &bull; Unlimited runs forever</span>
+          </button>
         </div>
 
         <ul class="entitlement-list">
@@ -2096,26 +2143,25 @@
           <li><span class="entitlement-check">&#10003;</span> <span><strong>Pocket-Friendly Guarantee:</strong> No surprise fees &bull; 100% money-back satisfaction</span></li>
         </ul>
 
-        <div class="form-group">
-          <label class="form-label" for="checkout-email">Your Work Email (for instant API key delivery &amp; receipt)</label>
-          <input type="email" id="checkout-email" class="form-input" value="user@domain.com" required />
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Payment Method (Simulated Instant 1-Click Checkout)</label>
-          <div style="background: var(--color-gray-050); border: 1px solid var(--color-gray-200); border-radius: var(--space-5); padding: var(--space-7) var(--space-9); display: flex; align-items: center; justify-content: space-between; font-size: var(--text-base); color: var(--color-gray-650);">
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <span style="font-family: var(--font-mono); font-weight: 700; color: var(--color-switch-on);">CARD / LINK</span>
-              <span>•••• •••• •••• 4242</span>
-            </div>
-            <span style="font-family: var(--font-mono); font-size: var(--text-xs); color: var(--color-mineral); font-weight: 600;">Stripe Verified &bull; Under $4</span>
-          </div>
-        </div>
-
+        <!-- Works without JS too: the server redirects (303) straight to Stripe Checkout -->
         <form action="/create-checkout-session" method="POST" id="checkout-form" style="margin: 0;">
+          <input type="hidden" name="agent" id="checkout-agent-input" value="" />
+          <input type="hidden" name="plan" id="checkout-plan-input" value="monthly" />
+
+          <div class="form-group">
+            <label class="form-label" for="checkout-email">
+              <span>Work email</span>
+              <span class="form-label-hint">Optional &middot; prefills checkout &amp; receipt</span>
+            </label>
+            <input type="email" name="email" id="checkout-email" class="form-input" placeholder="you@company.com" autocomplete="email" />
+          </div>
+
+          <div class="checkout-error" id="checkout-error" role="alert" hidden></div>
+
           <button class="btn btn-primary" style="width: 100%; padding: 13px;" id="checkout-button" type="submit">
             Unlock Agent ($2.50/mo)
           </button>
+          <p class="checkout-secure-note">&#128274; You'll pay on Stripe's secure checkout page and can review everything before paying.</p>
         </form>
       </div>
     </div>
@@ -2142,175 +2188,9 @@
   <!-- Toast Notification System -->
   <div class="toast-container" id="toast-container"></div>
 
+  <!-- Marketplace catalog (shared with server.js so UI prices match Stripe charges) -->
+  <script src="agents.js"></script>
   <script>
-    // =========================================================================
-    // INITIAL CURATED AGENTS (ACCESSIBLE $1-$3 MICRO-PRICING, <$4 HARD CAP)
-    // =========================================================================
-    const agentsData = [
-      {
-        name: "Autonomous Senior Dev",
-        handle: "@autonomous_senior_dev",
-        creator: "@kieran_builds",
-        category: "Coding & DevOps",
-        tier: "Top 0.1%",
-        tierClass: "tier-top01",
-        bannerClass: "banner-heather",
-        avatar: "SD",
-        tags: ["Coding", "PR Review", "TypeScript", "Python", "Bugs"],
-        description: "Reviews code pull requests, catches software bugs, and delivers verified fixes automatically around the clock.",
-        subscribers: 1420,
-        uptime: 99.99,
-        latency: 164,
-        priceMonthly: 2.50,
-        priceOneTime: 3.50,
-        samplePrompt: "Audit this database connection pool snippet for leaked connections and provide a tested fix."
-      },
-      {
-        name: "ArXiv Deep Synthesizer",
-        handle: "@arxiv_deep_research",
-        creator: "@elena_ml",
-        category: "Deep Research",
-        tier: "Top 0.1%",
-        tierClass: "tier-top01",
-        bannerClass: "banner-cactus",
-        avatar: "AR",
-        tags: ["Research", "Papers", "ArXiv", "Synthesis", "AI"],
-        description: "Distills the latest industry research papers into concise executive briefings delivered directly to your inbox.",
-        subscribers: 1185,
-        uptime: 99.98,
-        latency: 192,
-        priceMonthly: 1.50,
-        priceOneTime: 2.90,
-        samplePrompt: "Summarize key benchmark takeaways across modern AI model architectures."
-      },
-      {
-        name: "K8s FinOps Autopilot",
-        handle: "@k8s_cost_reclaimer",
-        creator: "@infra_daemon",
-        category: "Coding & DevOps",
-        tier: "Top 1%",
-        tierClass: "tier-top1",
-        bannerClass: "banner-peach",
-        avatar: "K8",
-        tags: ["Kubernetes", "K8s", "EKS", "GKE", "FinOps", "DevOps"],
-        description: "Monitors cloud infrastructure usage and automatically eliminates idle resources to reduce monthly hosting costs.",
-        subscribers: 890,
-        uptime: 99.97,
-        latency: 148,
-        priceMonthly: 3.00,
-        priceOneTime: 3.90,
-        samplePrompt: "Analyze current cloud resource utilization and recommend adjustments to reduce monthly spend."
-      },
-      {
-        name: "Outbound Signal Enricher",
-        handle: "@outbound_signal_agent",
-        creator: "@growth_ops",
-        category: "Growth & Automation",
-        tier: "Top 0.1%",
-        tierClass: "tier-top01",
-        bannerClass: "banner-peach",
-        avatar: "SE",
-        tags: ["Leads", "Enrichment", "HubSpot", "Outreach", "Sales"],
-        description: "Tracks online buying signals to automatically identify, qualify, and route high-intent leads to your sales pipeline.",
-        subscribers: 1310,
-        uptime: 99.96,
-        latency: 205,
-        priceMonthly: 2.00,
-        priceOneTime: 3.50,
-        samplePrompt: "Find high-growth technology companies hiring engineering leaders and draft outreach."
-      },
-      {
-        name: "Tier-2 Support Resolver",
-        handle: "@tier2_triage_node",
-        creator: "@cx_autonomy",
-        category: "Customer Support",
-        tier: "Trending",
-        tierClass: "tier-trending",
-        bannerClass: "banner-cactus",
-        avatar: "T2",
-        tags: ["Support", "Zendesk", "Tickets", "Troubleshooting"],
-        description: "Investigates complex customer inquiries, identifies root causes, and resolves support tickets with minimal human escalation.",
-        subscribers: 640,
-        uptime: 99.99,
-        latency: 175,
-        priceMonthly: 1.80,
-        priceOneTime: 2.80,
-        samplePrompt: "Investigate why customer account #9821 experienced a recurring invoice delivery error."
-      },
-      {
-        name: "On-Chain Treasury Sentinel",
-        handle: "@treasury_quant_node",
-        creator: "@quant_foundry",
-        category: "Data & Finance",
-        tier: "Top 1%",
-        tierClass: "tier-top1",
-        bannerClass: "banner-heather",
-        avatar: "TS",
-        tags: ["Finance", "Stripe", "Reconciliation", "FX", "Runway"],
-        description: "Tracks corporate cash flow and billing anomalies in real time to alert leadership to runway and financial risks.",
-        subscribers: 720,
-        uptime: 99.98,
-        latency: 138,
-        priceMonthly: 2.90,
-        priceOneTime: 3.80,
-        samplePrompt: "Reconcile recent subscription settlements against net operating cash burn."
-      },
-      {
-        name: "Regulatory Compliance Watchdog",
-        handle: "@sec_audit_bot",
-        creator: "@legal_fintech",
-        category: "Data & Finance",
-        tier: "Top 0.1%",
-        tierClass: "tier-top01",
-        bannerClass: "banner-peach",
-        avatar: "CW",
-        tags: ["Compliance", "SOC2", "GDPR", "Audit", "Security"],
-        description: "Monitors company documentation, privacy policies, and workflows to flag compliance risks before formal audits.",
-        subscribers: 1040,
-        uptime: 99.97,
-        latency: 184,
-        priceMonthly: 3.00,
-        priceOneTime: 3.90,
-        samplePrompt: "Review customer privacy disclosures against data retention compliance guidelines."
-      },
-      {
-        name: "Multimodal UX Benchmark Agent",
-        handle: "@ux_eval_agent",
-        creator: "@design_systems",
-        category: "Deep Research",
-        tier: "Trending",
-        tierClass: "tier-trending",
-        bannerClass: "banner-cactus",
-        avatar: "UX",
-        tags: ["Design", "UX", "Accessibility", "WCAG", "CSS"],
-        description: "Audits web and mobile apps for visual consistency, user experience flaws, and digital accessibility compliance.",
-        subscribers: 512,
-        uptime: 99.95,
-        latency: 210,
-        priceMonthly: 1.20,
-        priceOneTime: 2.40,
-        samplePrompt: "Audit this checkout page layout for visual contrast and accessibility compliance."
-      },
-      {
-        name: "Omnichannel Churn Reverser",
-        handle: "@churn_reverser",
-        creator: "@retention_lab",
-        category: "Customer Support",
-        tier: "Top 1%",
-        tierClass: "tier-top1",
-        bannerClass: "banner-heather",
-        avatar: "CR",
-        tags: ["Retention", "Analytics", "Mixpanel", "Amplitude"],
-        description: "Detects early customer disengagement patterns and triggers targeted retention offers before accounts cancel.",
-        subscribers: 810,
-        uptime: 99.96,
-        latency: 168,
-        priceMonthly: 1.90,
-        priceOneTime: 3.20,
-        samplePrompt: "Generate an empathetic retention offer for a high-value account inactive for 14 days."
-      }
-    ];
-
     let activeCategory = "all";
     let activeSort = "top_01";
     const sandboxQuotas = {}; // Tracks 3 free runs per agent handle
@@ -2420,10 +2300,10 @@
             </div>
 
             <div class="card-actions">
-              <button class="btn btn-primary" onclick="openSubscribeModal('${escapeHtml(agent.name)}', '${agent.handle}', ${agent.priceMonthly}, ${agent.priceOneTime})">
+              <button class="btn btn-primary" onclick="openSubscribeModal('${agent.handle}')">
                 Hire ($${agent.priceMonthly.toFixed(2)}/mo)
               </button>
-              <button class="btn btn-secondary" onclick="openSandboxModal('${escapeHtml(agent.name)}', '${agent.handle}', '${escapeHtml(agent.samplePrompt)}')">
+              <button class="btn btn-secondary" onclick="openSandboxModal('${agent.handle}')">
                 Try Demo
               </button>
             </div>
@@ -2471,7 +2351,7 @@
     }
 
     function openFeaturedDemo() {
-      openSandboxModal('Autonomous Senior Dev', '@autonomous_senior_dev', 'Audit this Postgres connection pool snippet for leaked transactions and output a unified diff.');
+      openSandboxModal('@autonomous_senior_dev', 'Audit this Postgres connection pool snippet for leaked transactions and output a unified diff.');
     }
 
     // =========================================================================
@@ -2479,26 +2359,32 @@
     // =========================================================================
     let currentSandboxAgent = null;
 
-    function openSandboxModal(name, handle, samplePrompt) {
-      currentSandboxAgent = { name, handle };
+    function openModal(id) {
+      document.getElementById(id).classList.add("open");
+      document.body.classList.add("modal-open");
+    }
+
+    function openSandboxModal(handle, promptOverride) {
+      const agent = agentsData.find(a => a.handle === handle);
+      if (!agent) return;
+      currentSandboxAgent = agent;
       if (sandboxQuotas[handle] === undefined) sandboxQuotas[handle] = 3;
 
-      document.getElementById("sandbox-agent-title").textContent = `${name} — Sandbox`;
+      document.getElementById("sandbox-agent-title").textContent = `${agent.name} — Sandbox`;
       document.getElementById("sandbox-agent-handle").textContent = `${handle} · Isolated Ephemeral Container`;
-      document.getElementById("sandbox-prompt-input").value = samplePrompt;
+      document.getElementById("sandbox-prompt-input").value = promptOverride || agent.samplePrompt;
       document.getElementById("sandbox-stream-output").textContent = "Ready. Click 'Run Free Sandbox Trial' to stream real-time SSE output...";
       document.getElementById("sandbox-status-indicator").textContent = "Ready";
       document.getElementById("sandbox-status-indicator").style.color = "var(--color-cactus)";
       document.getElementById("run-sandbox-btn").disabled = false;
       updateSandboxQuotaBadge();
 
-      const found = agentsData.find(a => a.handle === handle) || { priceMonthly: 2.50, priceOneTime: 3.50 };
       document.getElementById("sandbox-upgrade-btn").onclick = () => {
         closeModal("sandbox-modal");
-        openSubscribeModal(name, handle, found.priceMonthly, found.priceOneTime);
+        openSubscribeModal(handle);
       };
 
-      document.getElementById("sandbox-modal").classList.add("open");
+      openModal("sandbox-modal");
     }
 
     function updateSandboxQuotaBadge() {
@@ -2561,120 +2447,90 @@
     let currentCheckoutAgent = null;
     let selectedPlan = "monthly"; // "monthly" or "onetime"
 
-    function openSubscribeModal(name, handle, priceMonthly, priceOneTime) {
-      currentCheckoutAgent = { name, handle, priceMonthly, priceOneTime };
-      selectedPlan = "monthly";
+    function openSubscribeModal(handle) {
+      const agent = agentsData.find(a => a.handle === handle);
+      if (!agent) return;
+      currentCheckoutAgent = agent;
 
-      document.getElementById("checkout-agent-title").textContent = `Hire ${name}`;
-      document.getElementById("checkout-agent-handle").textContent = `${handle} · Under $4 Hard Cap · Instant Access`;
-      document.getElementById("plan-monthly-price").textContent = `$${priceMonthly.toFixed(2)}/mo`;
-      document.getElementById("plan-onetime-price").textContent = `$${priceOneTime.toFixed(2)} once`;
-      
+      document.getElementById("checkout-agent-title").textContent = `Hire ${agent.name}`;
+      document.getElementById("checkout-agent-handle").textContent = `${agent.handle} · Under $4 Hard Cap · Instant Access`;
+      document.getElementById("plan-monthly-price").textContent = `$${agent.priceMonthly.toFixed(2)}/mo`;
+      document.getElementById("plan-onetime-price").textContent = `$${agent.priceOneTime.toFixed(2)} once`;
+      document.getElementById("checkout-agent-input").value = agent.handle;
+
+      setCheckoutError("");
+      setCheckoutBusy(false);
       selectPurchasePlan("monthly");
-      document.getElementById("subscribe-modal").classList.add("open");
+      openModal("subscribe-modal");
     }
 
     function selectPurchasePlan(plan) {
       selectedPlan = plan;
+      const isMonthly = plan === "monthly";
       const subCard = document.getElementById("plan-card-sub");
       const onceCard = document.getElementById("plan-card-once");
-      const confirmBtn = document.getElementById("checkout-button") || document.getElementById("confirm-sub-btn");
 
-      if (plan === "monthly") {
-        subCard.classList.add("active");
-        onceCard.classList.remove("active");
-        confirmBtn.textContent = `Unlock Monthly Plan ($${currentCheckoutAgent.priceMonthly.toFixed(2)}/mo)`;
-      } else {
-        onceCard.classList.add("active");
-        subCard.classList.remove("active");
-        confirmBtn.textContent = `Unlock Lifetime Access ($${currentCheckoutAgent.priceOneTime.toFixed(2)} once)`;
+      subCard.classList.toggle("active", isMonthly);
+      subCard.setAttribute("aria-checked", String(isMonthly));
+      onceCard.classList.toggle("active", !isMonthly);
+      onceCard.setAttribute("aria-checked", String(!isMonthly));
+      document.getElementById("checkout-plan-input").value = plan;
+      document.getElementById("checkout-button").textContent = isMonthly
+        ? `Unlock Monthly Plan ($${currentCheckoutAgent.priceMonthly.toFixed(2)}/mo)`
+        : `Unlock Lifetime Access ($${currentCheckoutAgent.priceOneTime.toFixed(2)} once)`;
+    }
+
+    function setCheckoutBusy(busy) {
+      const btn = document.getElementById("checkout-button");
+      btn.disabled = busy;
+      if (busy) btn.textContent = "Redirecting to secure Stripe checkout…";
+      else if (currentCheckoutAgent) selectPurchasePlan(selectedPlan);
+    }
+
+    function setCheckoutError(message) {
+      const box = document.getElementById("checkout-error");
+      box.textContent = message;
+      box.hidden = !message;
+    }
+
+    // Creates the Stripe Checkout Session server-side and redirects to Stripe's hosted page.
+    async function completeSubscription(event) {
+      event.preventDefault();
+      const form = event.currentTarget;
+      setCheckoutError("");
+      setCheckoutBusy(true);
+
+      try {
+        const response = await fetch(form.action, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Accept": "application/json" },
+          body: JSON.stringify(Object.fromEntries(new FormData(form)))
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok || !data.url) {
+          throw new Error(data.error || `Checkout failed (HTTP ${response.status}). Please try again.`);
+        }
+        window.location.href = data.url;
+      } catch (err) {
+        setCheckoutBusy(false);
+        setCheckoutError(err instanceof TypeError
+          ? "Couldn't reach the server. Check your connection and try again."
+          : err.message);
       }
     }
 
-    function completeSubscription() {
-      const confirmBtn = document.getElementById("confirm-sub-btn");
-      if (confirmBtn) confirmBtn.textContent = "Connecting to Stripe Checkout...";
+    document.getElementById("checkout-form").addEventListener("submit", completeSubscription);
 
-      fetch("/api/create-checkout-session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          agentHandle: currentCheckoutAgent?.handle,
-          plan: selectedPlan
-        })
-      })
-      .then(response => {
-        if (response.redirected) {
-          window.location.href = response.url;
-        } else if (response.ok) {
-          return response.json().then(data => {
-            if (data.url) window.location.href = data.url;
-            else fallbackMockSuccess();
-          });
-        } else {
-          fallbackMockSuccess();
-        }
-      })
-      .catch(() => {
-        fallbackMockSuccess();
-      });
-    }
-
-    function fallbackMockSuccess() {
-      const email = document.getElementById("checkout-email")?.value || "buyer@domain.com";
-      const randomHex = Array.from({ length: 16 }, () => Math.floor(Math.random() * 16).toString(16)).join("");
-      const apiKey = `oa_live_${randomHex}`;
-      const body = document.getElementById("checkout-modal-body");
-      const planLabel = selectedPlan === "monthly" 
-        ? `$${currentCheckoutAgent.priceMonthly.toFixed(2)}/mo subscription` 
-        : `$${currentCheckoutAgent.priceOneTime.toFixed(2)} one-time purchase`;
-
-      body.innerHTML = `
-        <div style="background: var(--color-cactus); border: 1px solid rgba(0,0,0,0.06); padding: 14px; border-radius: 8px; margin-bottom: 16px; color: var(--color-gray-950);">
-          <strong style="display: block; font-size: 15px; margin-bottom: 2px;">&#10003; Agent Hired! Instant Access Active</strong>
-          <span style="font-size: 12px; color: var(--color-gray-650);">Confirmation receipt sent to ${escapeHtml(email)}. Plan: ${planLabel}.</span>
-        </div>
-        <div class="form-group">
-          <div class="form-label">
-            <span>Your Scoped Private API Key</span>
-            <span style="font-family: var(--font-mono); font-size: 10px; color: var(--color-mineral); font-weight: 600;">ACTIVE NOW</span>
-          </div>
-          <div style="display: flex; gap: 8px;">
-            <input type="text" class="form-input" style="font-family: var(--font-mono); font-weight: 600;" value="${apiKey}" readonly id="generated-api-key-input" />
-            <button class="btn btn-secondary btn-sm" onclick="copyApiKey('${apiKey}')">Copy Key</button>
-          </div>
-        </div>
-        <div class="terminal-box">
-          <div class="terminal-header">
-            <span>INSTANT CURL INVOCATION</span>
-            <button class="btn btn-ghost btn-sm" style="color: var(--color-gray-050); padding: 2px 6px; font-size: 10px;" onclick="copyCurl('${apiKey}', '${currentCheckoutAgent.handle}')">Copy curl</button>
-          </div>
-          <div style="color: var(--color-gray-250); word-break: break-all; font-size: 11px;">
-            curl -X POST https://api.onlyagents.io/v1/execute/${currentCheckoutAgent.handle} \\<br/>
-            &nbsp;&nbsp;-H "Authorization: Bearer ${apiKey}" \\<br/>
-            &nbsp;&nbsp;-H "Content-Type: application/json" \\<br/>
-            &nbsp;&nbsp;-d '{"input": "Run automated task"}'
-          </div>
-        </div>
-        <button class="btn btn-dark" style="width: 100%; padding: 12px;" onclick="closeModal('subscribe-modal')">Done &amp; Return to Feed</button>
-      `;
-
-      showToast(`Hired ${currentCheckoutAgent.name}! API key provisioned.`);
-    }
-
-    function copyApiKey(key) {
-      navigator.clipboard.writeText(key);
-      showToast("API key copied to clipboard");
-    }
-
-    function copyCurl(key, handle) {
-      const curl = `curl -X POST https://api.onlyagents.io/v1/execute/${handle} -H "Authorization: Bearer ${key}" -H "Content-Type: application/json" -d '{"input": "Run automated task"}'`;
-      navigator.clipboard.writeText(curl);
-      showToast("curl command copied to clipboard");
-    }
+    // Returning from Stripe with the back button restores this page from cache; re-enable the button.
+    window.addEventListener("pageshow", (e) => {
+      if (e.persisted) setCheckoutBusy(false);
+    });
 
     function closeModal(id) {
       document.getElementById(id).classList.remove("open");
+      if (!document.querySelector(".modal-backdrop.open")) {
+        document.body.classList.remove("modal-open");
+      }
     }
 
     function showToast(message) {
@@ -2703,9 +2559,10 @@
 
     // Keyboard Shortcuts (Esc closes modals, / focuses search)
     window.addEventListener("keydown", (e) => {
+      const modalOpen = document.querySelector(".modal-backdrop.open");
       if (e.key === "Escape") {
-        document.querySelectorAll(".modal-backdrop.open").forEach(m => m.classList.remove("open"));
-      } else if (e.key === "/" && document.activeElement.tagName !== "INPUT" && document.activeElement.tagName !== "TEXTAREA") {
+        document.querySelectorAll(".modal-backdrop.open").forEach(m => closeModal(m.id));
+      } else if (e.key === "/" && !modalOpen && document.activeElement.tagName !== "INPUT" && document.activeElement.tagName !== "TEXTAREA") {
         e.preventDefault();
         const searchInput = document.getElementById("agent-search-input");
         searchInput.focus();
@@ -2715,7 +2572,7 @@
 
     document.querySelectorAll(".modal-backdrop").forEach(backdrop => {
       backdrop.addEventListener("click", (e) => {
-        if (e.target === backdrop) backdrop.classList.remove("open");
+        if (e.target === backdrop) closeModal(backdrop.id);
       });
     });
 

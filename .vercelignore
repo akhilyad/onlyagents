@@ -1,0 +1,3 @@
+# Internal docs that shouldn't be publicly downloadable from the deployed site.
+# (server.js and agents.js must stay: the /api function requires them.)
+*.md

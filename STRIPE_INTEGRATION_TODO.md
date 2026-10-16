@@ -14,10 +14,10 @@ The following values are placeholders and must be updated before going live.
 
 | Field | Current Value | What to Set |
 |-------|--------------|-------------|
-| `mode` | `subscription` | Set to `"payment"` for one-time buyout charges or `"subscription"` for recurring monthly agent billing. |
+| `mode` | per request | Chosen automatically: `"subscription"` for an agent's monthly plan or the `/checkout` membership, `"payment"` for an agent's lifetime (one-time) plan. |
 | `success_url` | `${domain}/success?session_id={CHECKOUT_SESSION_ID}` | Your actual post-payment success page URL. Keep the `{CHECKOUT_SESSION_ID}` template parameter for order verification. |
-| `cancel_url` | `${domain}` | Your actual cancel/return page URL when a user exits checkout. |
-| `line_items[].price` / `STRIPE_PRICE_ID` | `price_...` | Your actual Stripe Price ID from the Stripe Dashboard ([https://dashboard.stripe.com/prices](https://dashboard.stripe.com/prices)) or created via API. |
+| `cancel_url` | `${domain}/cancel` | Page shown when a user exits checkout without paying. |
+| `line_items[].price` / `STRIPE_PRICE_ID` | `price_...` | Price ID for the generic OnlyAgents membership sold on `/checkout` ([https://dashboard.stripe.com/prices](https://dashboard.stripe.com/prices)). Individual agents use inline `price_data` built from `agents.js` (USD), so the amount charged always matches the marketplace card. |
 | `STRIPE_SECRET_KEY` | `sk_test_...` | Your secret API key from the Stripe Dashboard ([https://dashboard.stripe.com/test/apikeys](https://dashboard.stripe.com/test/apikeys)). |
 | `STRIPE_PUBLISHABLE_KEY` | `pk_test_...` | Your publishable API key from the Stripe Dashboard. |
 | `STRIPE_WEBHOOK_SECRET` | `whsec_...` | Your webhook endpoint signing secret from Stripe Workbench ([https://dashboard.stripe.com/workbench/webhooks](https://dashboard.stripe.com/workbench/webhooks)) or the Stripe CLI. |
@@ -65,7 +65,9 @@ onlyagents/
 ├── api/
 │   └── index.js                # Serverless function bridge for Vercel deployments
 ├── vercel.json                 # Vercel routing rules and serverless rewrites
-├── server.js                   # Express server with /create-checkout-session and /api/webhook
+├── server.js                   # Express server: checkout session, order lookup, membership price, webhook
+├── agents.js                   # Marketplace catalog shared by index.html and server.js (prices live here)
+├── .vercelignore               # Keeps internal *.md docs off the public deployment
 ├── package.json                # Server dependencies (express, stripe, dotenv)
 ├── .env                        # Local secret keys and environment config (git-ignored)
 ├── .env.example                # Template for environment variables
@@ -79,18 +81,19 @@ onlyagents/
 ```
 
 ### 3. Vercel Deployment Requirements
-Because `.env` is git-ignored, you must configure the following in your **Vercel Dashboard** under **Project Settings → Environment Variables**:
+Because `.env` is git-ignored, you must configure the following in your **Vercel Dashboard** under **Project Settings → Environment Variables** (then redeploy — env changes only apply to new deployments). Without `STRIPE_SECRET_KEY` the checkout endpoint returns *"Checkout isn't configured yet"*:
 - `STRIPE_SECRET_KEY`: `sk_live_...` (or `sk_test_...`)
 - `STRIPE_PUBLISHABLE_KEY`: `pk_live_...` (or `pk_test_...`)
 - `STRIPE_PRICE_ID`: `price_1Tu8wxE8UUeJxyCSg5p5uNBJ`
+- `STRIPE_WEBHOOK_SECRET`: `whsec_...` from the webhook endpoint you register for `https://<your-domain>/api/webhook`
 - `DOMAIN` (Optional): `https://your-domain.vercel.app` (automatically detected if omitted)
 
 ### 3. How the Integration Works (Flow Overview)
 1. **User Action:** The user browses agents in OnlyAgents, selects a plan ($1–$3/mo or one-time), and clicks **Unlock Agent** / **Hire Agent**.
-2. **Session Creation:** The browser submits a request to `POST /api/create-checkout-session`.
-3. **Stripe Redirect:** The backend generates a Stripe Checkout Session with all `fixed_by_ui` parameters and returns a `303` redirect directly to Stripe's secure payment page (`session.url`).
-4. **Completion:** Upon successful payment, Stripe redirects the buyer back to `success_url` (`${DOMAIN}/success?session_id={CHECKOUT_SESSION_ID}`).
-5. **Webhook Fulfillment:** Stripe sends a `checkout.session.completed` event to `POST /api/webhook`. The server verifies the cryptographic signature with `STRIPE_WEBHOOK_SECRET`, provisions the buyer's scoped API key, and activates access.
+2. **Session Creation:** The modal posts `{ agent, plan, email }` to `POST /create-checkout-session` (JSON via `fetch`, or a plain form post without JS). The server looks the agent up in `agents.js` — client-sent prices are never trusted.
+3. **Stripe Redirect:** The backend creates the Checkout Session and returns `{ url }` (JSON) or a `303` redirect to Stripe's hosted payment page. Errors are shown inline in the modal.
+4. **Completion:** Upon successful payment, Stripe redirects the buyer to `${DOMAIN}/success?session_id={CHECKOUT_SESSION_ID}`; `success.html` calls `GET /api/checkout-session` to show the verified order summary.
+5. **Webhook Fulfillment:** Stripe sends a `checkout.session.completed` event to `POST /api/webhook`. The server verifies the signature with `STRIPE_WEBHOOK_SECRET` (unverified events are rejected) and logs `session.metadata.agent` / `plan`. **TODO:** provision the buyer's scoped API key and activate access here.
 
 ### 4. Running Locally
 Start the server with Node:

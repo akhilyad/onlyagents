@@ -1,22 +1,77 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>Buy cool new product</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://js.stripe.com/clover/stripe.js"></script>
-  </head>
-  <body>
-    <section>
-      <div class="product">
-        <img src="https://i.imgur.com/EHyR2nP.png" alt="The cover of Stubborn Attachments" />
-        <div class="description">
-          <h3>Stubborn Attachments</h3>
-          <h5>$20.00</h5>
-        </div>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Checkout · OnlyAgents</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <a class="brand" href="/"><span class="brand-mark">O</span> OnlyAgents</a>
+
+  <section class="status-card">
+    <div class="product">
+      <div class="product-media" id="product-media" aria-hidden="true">O</div>
+      <div>
+        <h1 id="product-name">OnlyAgents</h1>
+        <div class="product-price" id="product-price">Loading price…</div>
       </div>
-      <form action="/create-checkout-session" method="POST">
-        <button type="submit" id="checkout-button">Checkout</button>
-      </form>
-    </section>
-  </body>
+    </div>
+
+    <p class="product-copy" id="product-copy">
+      Membership billed securely through Stripe. Cancel anytime.
+    </p>
+
+    <!-- No agent selected: the server charges the STRIPE_PRICE_ID membership -->
+    <form action="/create-checkout-session" method="POST" id="checkout-form">
+      <button type="submit" class="btn btn-primary btn-block" id="checkout-button">Continue to secure checkout</button>
+    </form>
+
+    <p class="fine-print">Looking for a single agent? <a href="/#discovery-feed">Browse the marketplace</a></p>
+  </section>
+
+  <script>
+    const button = document.getElementById("checkout-button");
+
+    document.getElementById("checkout-form").addEventListener("submit", () => {
+      button.disabled = true;
+      button.textContent = "Redirecting to Stripe…";
+    });
+
+    // Returning from Stripe with the back button restores this page from cache; re-enable the button.
+    window.addEventListener("pageshow", (e) => {
+      if (!e.persisted) return;
+      button.disabled = false;
+      button.textContent = "Continue to secure checkout";
+    });
+
+    function formatPrice({ amount, currency, interval }) {
+      const price = new Intl.NumberFormat(undefined, { style: "currency", currency }).format(amount / 100);
+      return interval ? `${price} / ${interval}` : `${price} one-time`;
+    }
+
+    fetch("/api/membership", { headers: { Accept: "application/json" } })
+      .then(async (res) => {
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || "Pricing unavailable");
+        return data;
+      })
+      .then((product) => {
+        document.getElementById("product-name").textContent = product.name;
+        document.getElementById("product-price").textContent = formatPrice(product);
+        if (product.description) {
+          document.getElementById("product-copy").textContent = product.description;
+        }
+        if (product.image) {
+          const img = document.createElement("img");
+          img.src = product.image;
+          img.alt = "";
+          document.getElementById("product-media").replaceChildren(img);
+        }
+      })
+      .catch(() => {
+        document.getElementById("product-price").textContent = "Price shown at checkout";
+      });
+  </script>
+</body>
 </html>

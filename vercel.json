@@ -6,11 +6,7 @@
       "destination": "/api/index.js"
     },
     {
-      "source": "/api/create-checkout-session",
-      "destination": "/api/index.js"
-    },
-    {
-      "source": "/api/webhook",
+      "source": "/api/:path*",
       "destination": "/api/index.js"
     },
     {
