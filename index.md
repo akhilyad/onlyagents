@@ -2106,9 +2106,11 @@
           </div>
         </div>
 
-        <button class="btn btn-primary" style="width: 100%; padding: 13px;" id="confirm-sub-btn" onclick="completeSubscription()">
-          Unlock Agent ($2.50/mo)
-        </button>
+        <form action="/create-checkout-session" method="POST" id="checkout-form" style="margin: 0;">
+          <button class="btn btn-primary" style="width: 100%; padding: 13px;" id="checkout-button" type="submit">
+            Unlock Agent ($2.50/mo)
+          </button>
+        </form>
       </div>
     </div>
   </div>
@@ -2570,7 +2572,7 @@
       selectedPlan = plan;
       const subCard = document.getElementById("plan-card-sub");
       const onceCard = document.getElementById("plan-card-once");
-      const confirmBtn = document.getElementById("confirm-sub-btn");
+      const confirmBtn = document.getElementById("checkout-button") || document.getElementById("confirm-sub-btn");
 
       if (plan === "monthly") {
         subCard.classList.add("active");

@@ -14,8 +14,8 @@ app.use(express.static(__dirname));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// Stripe Hosted Checkout Session creation endpoint
-app.post("/api/create-checkout-session", async (req, res) => {
+// Stripe Hosted Checkout Session creation endpoint (supports both /create-checkout-session and /api/create-checkout-session)
+app.post(["/create-checkout-session", "/api/create-checkout-session"], async (req, res) => {
   try {
     const domain = process.env.DOMAIN || `http://localhost:${port}`;
     const mode = "subscription"; // "subscription" for recurring agent access or "payment" for one-time unlock
@@ -56,7 +56,7 @@ app.post("/api/create-checkout-session", async (req, res) => {
 });
 
 // GET fallback support for direct links and browser triggers
-app.get("/api/create-checkout-session", async (req, res) => {
+app.get(["/create-checkout-session", "/api/create-checkout-session"], async (req, res) => {
   try {
     const domain = process.env.DOMAIN || `http://localhost:${port}`;
     const mode = "subscription";
