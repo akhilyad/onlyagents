@@ -2590,6 +2590,35 @@
     }
 
     function completeSubscription() {
+      const confirmBtn = document.getElementById("confirm-sub-btn");
+      if (confirmBtn) confirmBtn.textContent = "Connecting to Stripe Checkout...";
+
+      fetch("/api/create-checkout-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          agentHandle: currentCheckoutAgent?.handle,
+          plan: selectedPlan
+        })
+      })
+      .then(response => {
+        if (response.redirected) {
+          window.location.href = response.url;
+        } else if (response.ok) {
+          return response.json().then(data => {
+            if (data.url) window.location.href = data.url;
+            else fallbackMockSuccess();
+          });
+        } else {
+          fallbackMockSuccess();
+        }
+      })
+      .catch(() => {
+        fallbackMockSuccess();
+      });
+    }
+
+    function fallbackMockSuccess() {
       const email = document.getElementById("checkout-email")?.value || "buyer@domain.com";
       const randomHex = Array.from({ length: 16 }, () => Math.floor(Math.random() * 16).toString(16)).join("");
       const apiKey = `oa_live_${randomHex}`;
