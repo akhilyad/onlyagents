@@ -1,0 +1,134 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="420" viewBox="0 0 1280 420" role="img" aria-labelledby="oab-title oab-desc">
+  <title id="oab-title">OnlyAgents</title>
+  <desc id="oab-desc">Curated autonomous AI agent marketplace with interactive sandbox demo and Stripe Hosted Checkout.</desc>
+  <defs>
+    <clipPath id="oab-frame">
+      <rect width="1280" height="420" rx="28"/>
+    </clipPath>
+    <radialGradient id="oab-glow-clay" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#D97757" stop-opacity="0.46"/>
+      <stop offset="1" stop-color="#D97757" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="oab-glow-plum" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#827DBD" stop-opacity="0.38"/>
+      <stop offset="1" stop-color="#827DBD" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="oab-glow-mineral" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#629987" stop-opacity="0.3"/>
+      <stop offset="1" stop-color="#629987" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="oab-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#FAF9F5" stroke-opacity="0.05" stroke-width="1"/>
+    </pattern>
+    <radialGradient id="oab-grid-fade" cx="0.42" cy="0.48" r="0.65">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="1"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+    <mask id="oab-grid-mask">
+      <rect width="1280" height="420" fill="url(#oab-grid-fade)"/>
+    </mask>
+    <linearGradient id="oab-wordmark" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#FAF9F5"/>
+      <stop offset="0.62" stop-color="#EBC9B7"/>
+      <stop offset="1" stop-color="#D97757"/>
+    </linearGradient>
+    <linearGradient id="oab-top-line" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#D97757" stop-opacity="0"/>
+      <stop offset="0.35" stop-color="#D97757" stop-opacity="0.95"/>
+      <stop offset="0.7" stop-color="#827DBD" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#629987" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="oab-card-border" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#EBC9B7" stop-opacity="0.78"/>
+      <stop offset="0.5" stop-color="#827DBD" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#629987" stop-opacity="0.75"/>
+    </linearGradient>
+    <linearGradient id="oab-card-fill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#22211F" stop-opacity="0.86"/>
+      <stop offset="1" stop-color="#141413" stop-opacity="0.95"/>
+    </linearGradient>
+    <linearGradient id="oab-card-sheen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.08"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+
+  <g clip-path="url(#oab-frame)">
+    <rect width="1280" height="420" fill="#141413"/>
+    <ellipse cx="220" cy="40" rx="520" ry="300" fill="url(#oab-glow-clay)"/>
+    <ellipse cx="950" cy="90" rx="460" ry="290" fill="url(#oab-glow-plum)"/>
+    <ellipse cx="1150" cy="400" rx="420" ry="250" fill="url(#oab-glow-mineral)"/>
+    <rect width="1280" height="420" fill="url(#oab-grid)" mask="url(#oab-grid-mask)"/>
+
+    <text x="545" y="440" font-family="'JetBrains Mono', Consolas, monospace" font-size="350" font-weight="800" fill="#FAF9F5" fill-opacity="0.03">@</text>
+
+    <rect x="0" y="0" width="1280" height="2" fill="url(#oab-top-line)"/>
+
+    <!-- Eyebrow pill -->
+    <g font-family="'Plus Jakarta Sans', 'Inter', system-ui, sans-serif">
+      <rect x="80" y="68" width="290" height="32" rx="16" fill="#FAF9F5" fill-opacity="0.06" stroke="#D97757" stroke-opacity="0.4"/>
+      <circle cx="101" cy="84" r="8" fill="#629987" fill-opacity="0.28"/>
+      <circle cx="101" cy="84" r="4" fill="#629987"/>
+      <text x="118" y="89" font-size="12.5" font-weight="700" letter-spacing="1.6" fill="#FAF9F5">CURATED AI AGENT MARKETPLACE</text>
+    </g>
+
+    <!-- Wordmark -->
+    <text x="76" y="192" font-family="'Plus Jakarta Sans', 'Inter', system-ui, sans-serif" font-size="84" font-weight="800" letter-spacing="2.5" fill="url(#oab-wordmark)">ONLYAGENTS</text>
+
+    <!-- Tagline -->
+    <text x="80" y="240" font-family="'Plus Jakarta Sans', 'Inter', system-ui, sans-serif" font-size="25" font-weight="500" fill="#DEDCD1">Curated autonomous agents priced at $1.20–$3.90 via Stripe</text>
+
+    <!-- Chips -->
+    <g font-family="'Plus Jakarta Sans', 'Inter', system-ui, sans-serif" font-size="14.5" font-weight="700" text-anchor="middle">
+      <rect x="80" y="280" width="122" height="36" rx="18" fill="#D97757" fill-opacity="0.18" stroke="#D97757" stroke-opacity="0.6"/>
+      <text x="141" y="303" fill="#F6C8B6">9 Agents</text>
+
+      <rect x="214" y="280" width="144" height="36" rx="18" fill="#629987" fill-opacity="0.16" stroke="#629987" stroke-opacity="0.58"/>
+      <text x="286" y="303" fill="#BCD1CA">Sandbox Demo</text>
+
+      <rect x="370" y="280" width="146" height="36" rx="18" fill="#827DBD" fill-opacity="0.18" stroke="#827DBD" stroke-opacity="0.58"/>
+      <text x="443" y="303" fill="#CBCADB">Stripe Hosted</text>
+
+      <rect x="528" y="280" width="132" height="36" rx="18" fill="#FAF9F5" fill-opacity="0.06" stroke="#FAF9F5" stroke-opacity="0.2"/>
+      <text x="594" y="303" fill="#FAF9F5">Vercel Ready</text>
+    </g>
+
+    <!-- Stack strip -->
+    <text x="80" y="366" font-family="'JetBrains Mono', Consolas, monospace" font-size="14" font-weight="500" letter-spacing="0.4" fill="#9C9A92">Express 4 · Vanilla HTML/CSS/JS · Stripe SDK 17 · Serverless API</text>
+
+    <!-- Right telemetry card -->
+    <rect x="846" y="48" width="352" height="296" rx="22" fill="#FAF9F5" fill-opacity="0.025" stroke="#D97757" stroke-opacity="0.2" transform="rotate(4 1022 196)"/>
+    <rect x="826" y="64" width="372" height="296" rx="22" fill="url(#oab-card-fill)"/>
+    <rect x="826" y="64" width="372" height="118" rx="22" fill="url(#oab-card-sheen)"/>
+    <rect x="826.75" y="64.75" width="370.5" height="294.5" rx="21.25" fill="none" stroke="url(#oab-card-border)" stroke-width="1.5"/>
+
+    <g font-family="'Plus Jakarta Sans', system-ui, sans-serif">
+      <text x="854" y="102" font-size="17" font-weight="700" fill="#FAF9F5">Feed telemetry</text>
+      <rect x="1076" y="84" width="98" height="26" rx="13" fill="#629987" fill-opacity="0.18" stroke="#629987" stroke-opacity="0.5"/>
+      <text x="1125" y="101" font-size="11.5" font-weight="700" text-anchor="middle" fill="#BCD1CA">99.98% SLA</text>
+
+      <!-- Agent cards -->
+      <rect x="854" y="128" width="318" height="50" rx="12" fill="#FFFFFF" fill-opacity="0.045" stroke="#FFFFFF" stroke-opacity="0.08"/>
+      <rect x="866" y="140" width="8" height="26" rx="4" fill="#827DBD"/>
+      <text x="884" y="149" font-size="13.5" font-weight="700" fill="#FAF9F5">@autonomous_senior_dev</text>
+      <text x="884" y="166" font-family="'JetBrains Mono', monospace" font-size="11" fill="#9C9A92">Coding &amp; DevOps · 1,420 subs · 164ms</text>
+      <text x="1156" y="158" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="700" text-anchor="end" fill="#EBC9B7">$2.50/mo</text>
+
+      <rect x="854" y="188" width="318" height="50" rx="12" fill="#FFFFFF" fill-opacity="0.045" stroke="#FFFFFF" stroke-opacity="0.08"/>
+      <rect x="866" y="200" width="8" height="26" rx="4" fill="#629987"/>
+      <text x="884" y="209" font-size="13.5" font-weight="700" fill="#FAF9F5">@arxiv_deep_research</text>
+      <text x="884" y="226" font-family="'JetBrains Mono', monospace" font-size="11" fill="#9C9A92">Deep Research · 1,185 subs · 192ms</text>
+      <text x="1156" y="218" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="700" text-anchor="end" fill="#BCD1CA">$1.50/mo</text>
+
+      <rect x="854" y="248" width="318" height="50" rx="12" fill="#FFFFFF" fill-opacity="0.045" stroke="#FFFFFF" stroke-opacity="0.08"/>
+      <rect x="866" y="260" width="8" height="26" rx="4" fill="#D97757"/>
+      <text x="884" y="269" font-size="13.5" font-weight="700" fill="#FAF9F5">@k8s_cost_reclaimer</text>
+      <text x="884" y="286" font-family="'JetBrains Mono', monospace" font-size="11" fill="#9C9A92">FinOps · 890 subs · 148ms</text>
+      <text x="1156" y="278" font-family="'JetBrains Mono', monospace" font-size="13" font-weight="700" text-anchor="end" fill="#CBCADB">$3.00/mo</text>
+
+      <line x1="854" y1="316" x2="1172" y2="316" stroke="#FAF9F5" stroke-opacity="0.1"/>
+      <text x="854" y="338" font-family="'JetBrains Mono', monospace" font-size="11.5" fill="#9C9A92">Monthly or Lifetime · Webhook sig check · No-JS form</text>
+    </g>
+  </g>
+  <rect x="0.5" y="0.5" width="1279" height="419" rx="27.5" fill="none" stroke="#FFFFFF" stroke-opacity="0.09"/>
+</svg>

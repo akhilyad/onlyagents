@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-labelledby="oa-logo-title">
+  <title id="oa-logo-title">OnlyAgents Logo</title>
+  <defs>
+    <linearGradient id="oa-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1E1D1B"/>
+      <stop offset="1" stop-color="#141413"/>
+    </linearGradient>
+    <linearGradient id="oa-clay" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#E5896B"/>
+      <stop offset="1" stop-color="#D97757"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="28" fill="url(#oa-bg)"/>
+  <!-- O arc in Warm Ivory -->
+  <circle cx="48" cy="66" r="24" fill="none" stroke="#FAF9F5" stroke-width="10"/>
+  <!-- Interlocking A chevron in Terracotta Clay -->
+  <path d="M58 90L79 38L100 90" fill="none" stroke="url(#oa-clay)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M67 74H91" stroke="url(#oa-clay)" stroke-width="8" stroke-linecap="round"/>
+  <!-- Live telemetry dot in Mineral Teal -->
+  <circle cx="98" cy="30" r="6" fill="#629987"/>
+  <circle cx="98" cy="30" r="10" fill="#629987" fill-opacity="0.22"/>
+  <rect x="0.75" y="0.75" width="126.5" height="126.5" rx="27.25" fill="none" stroke="#FFFFFF" stroke-opacity="0.14" stroke-width="1.5"/>
+</svg>
+
